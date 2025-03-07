@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fly Pad - Tablette de Pilote</title>
+    <style>
+        /* Variables globales */
+        :root {
+            --primary-color: #0a2463;
+            --secondary-color: #247ba0;
+            --accent-color: #70c1b3;
+            --warning-color: #f25f5c;
+            --background-color: #e9ecef;
+            --text-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+
+        /* Reset et styles de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Container principal - simule la tablette */
+        .tablet-container {
+            width: 100%;
+            max-width: 1024px;
+            margin: 20px auto;
+            background-color: #333;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Écran de la tablette */
+        .tablet-screen {
+            background-color: var(--dark-color);
+            border-radius: 12px;
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #555;
+        }
+
+        /* Barre de navigation */
+        .nav-bar {
+            background-color: var(--primary-color);
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .indicator {
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .indicator-green {
+            background-color: #4caf50;
+        }
+
+        .indicator-yellow {
+            background-color: #ffeb3b;
+        }
+
+        .time-display {
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        /* Navigation principale */
+        .main-nav {
+            background-color: var(--secondary-color);
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 8px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        /* Contenu principal */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: var(--dark-color);
+            color: var(--text-color);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-section {
+            display: none;
+            flex: 1;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #1a1a1a;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Section carte de navigation */
+        .nav-map {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .map-container {
+            flex: 1;
+            background-color: #1c313a;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .map-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba(112, 193, 179, 0.2);
+            background-image: 
+                linear-gradient(rgba(112, 193, 179, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(112, 193, 179, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .flight-path {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--accent-color);
+            z-index: 1;
+        }
+
+        .aircraft-icon {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border-radius: 50%;
+            top: 50%;
+            left: 70%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            border: 2px solid var(--accent-color);
+        }
+
+        .map-controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+        }
+
+        .map-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .map-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        .data-display {
+            background-color: #2a2a2a;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .data-label {
+            color: var(--accent-color);
+        }
+
+        .data-value {
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        /* Section ATC */
+        .atc-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .communication-display {
+            flex: 1;
+            background-color: #1c313a;
+            border-radius: 5px;
+            padding: 10px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+        }
+
+        .comm-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .incoming {
+            background-color: rgba(36, 123, 160, 0.3);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .outgoing {
+            background-color: rgba(112, 193, 179, 0.2);
+            border-left: 4px solid var(--accent-color);
+            text-align: right;
+        }
+
+        .message-header {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .message-body {
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .comm-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .comm-btn {
+            flex: 1;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .comm-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        .emergency-btn {
+            background-color: var(--warning-color);
+        }
+
+        .emergency-btn:hover {
+            background-color: #ff6b6b;
+        }
+
+        /* Section checklist */
+        .checklist-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .checklist-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .checklist-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .phase-indicator {
+            font-size: 14px;
+            padding: 5px 10px;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            transition: background-color 0.2s;
+        }
+
+        .checklist-item:hover {
+            background-color: #2a2a2a;
+        }
+
+        .item-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .item-text {
+            flex: 1;
+        }
+
+        .item-response {
+            color: var(--accent-color);
+            font-weight: bold;
+            width: 100px;
+            text-align: right;
+        }
+
+        .checklist-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .checklist-nav-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .checklist-nav-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        /* Pied de page */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-top: 2px solid var(--secondary-color);
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .footer-icon {
+            width: 20px;
+            height: 20px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 8px;
+            color: var(--primary-color);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tablet-container {
+                margin: 10px;
+                padding: 10px;
+            }
+
+            .main-nav {
+                flex-wrap: wrap;
+            }
+
+            .nav-link {
+                padding: 8px 12px;
+                margin: 2px;
+            }
+
+            .status-indicators {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tablet-container">
+        <div class="tablet-screen">
+            <!-- Barre supérieure -->
+            <div class="nav-bar">
+                <div class="logo">
+                    <div class="logo-icon">F</div>
+                    <div class="time-display" id="time-display">12:00:00 UTC</div>
+                </div>
+                <div class="status-indicators">
+                    <div class="indicator">
+                        <div class="indicator-dot indicator-green"></div>
+                        <span>GPS</span>
+                    </div>
+                    <div class="indicator">
+                        <div class="indicator-dot indicator-green"></div>
+                        <span>ATC</span>
+                    </div>
+                    <div class="indicator">
+                        <div class="indicator-dot indicator-yellow"></div>
+                        <span>WEATHER</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation principale -->
+            <div class="main-nav">
+                <a href="#" class="nav-link active" data-section="nav-map">Carte de Navigation</a>
+                <a href="#" class="nav-link" data-section="atc">Contrôle Aérien</a>
+                <a href="#" class="nav-link" data-section="checklist">Checklist</a>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="main-content">
+                <!-- Section Carte de Navigation -->
+                <div class="content-section active" id="nav-map">
+                    <div class="nav-map">
+                        <div class="map-container">
+                            <div class="map-grid"></div>
+                            <div class="flight-path"></div>
+                            <div class="aircraft-icon">✈</div>
+                        </div>
+                        <div class="map-controls">
+                            <button class="map-btn">Zoom -</button>
+                            <button class="map-btn">Centrer</button>
+                            <button class="map-btn">Zoom +</button>
+                        </div>
+                        <div class="data-display">
+                            <div class="data-row">
+                                <div class="data-label">ALT:</div>
+                                <div class="data-value">35,000 FT</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">SPD:</div>
+                                <div class="data-value">480 KTS</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">HDG:</div>
+                                <div class="data-value">090°</div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">ETA:</div>
+                                <div class="data-value">14:32 UTC</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Contrôle Aérien -->
+                <div class="content-section" id="atc">
+                    <div class="atc-section">
+                        <div class="communication-display">
+                            <div class="comm-message incoming">
+                                <div class="message-header">ATC - 09:45:12</div>
+                                <div class="message-body">FLIGHT 271, MAINTAIN FL350, EXPECT DIRECT BRAVO IN 10 MINUTES</div>
+                            </div>
+                            <div class="comm-message outgoing">
+                                <div class="message-header">FLIGHT 271 - 09:45:30</div>
+                                <div class="message-body">MAINTAINING FL350, EXPECTING DIRECT BRAVO IN 10, FLIGHT 271</div>
+                            </div>
+                            <div class="comm-message incoming">
+                                <div class="message-header">ATC - 09:52:45</div>
+                                <div class="message-body">FLIGHT 271, PROCEED DIRECT BRAVO NOW, CONTACT CENTER ON 128.5</div>
+                            </div>
+                            <div class="comm-message outgoing">
+                                <div class="message-header">FLIGHT 271 - 09:53:10</div>
+                                <div class="message-body">DIRECT BRAVO, CONTACTING CENTER 128.5, FLIGHT 271</div>
+                            </div>
+                        </div>
+                        <div class="comm-controls">
+                            <button class="comm-btn">RESPOND</button>
+                            <button class="comm-btn">FREQUENCY</button>
+                            <button class="comm-btn emergency-btn">EMERGENCY</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Checklist -->
+                <div class="content-section" id="checklist">
+                    <div class="checklist-section">
+                        <div class="checklist-title">
+                            <span>CRUISE CHECKLIST</span>
+                            <span class="phase-indicator">EN ROUTE</span>
+                        </div>
+                        <div class="checklist-container">
+                            <div class="checklist-item">
+                                <input type="checkbox" class="item-checkbox" checked>
+                                <span class="item-text">Altitude</span>
+                                <span class="item-response">SET</span>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" class="item-checkbox" checked>
+                                <span class="item-text">Navigation</span>
+                                <span class="item-response">CHECKED</span>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" class="item-checkbox" checked>
+                                <span class="item-text">Fuel Balance</span>
+                                <span class="item-response">VERIFIED</span>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" class="item-checkbox">
+                                <span class="item-text">Cabin Pressure</span>
+                                <span class="item-response">NORMAL</span>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" class="item-checkbox">
+                                <span class="item-text">Weather Update</span>
+                                <span class="item-response">PENDING</span>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" class="item-checkbox">
+                                <span class="item-text">Approach Briefing</span>
+                                <span class="item-response">PENDING</span>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" class="item-checkbox">
+                                <span class="item-text">Landing Data</span>
+                                <span class="item-response">PENDING</span>
+                            </div>
+                        </div>
+                        <div class="checklist-navigation">
+                            <button class="checklist-nav-btn">PRÉCÉDENT</button>
+                            <button class="checklist-nav-btn">COMPLET</button>
+                            <button class="checklist-nav-btn">SUIVANT</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pied de page -->
+            <footer>
+                <div class="footer-logo">
+                    <div class="footer-icon">F</div>
+                    <span>Fly Pad Pro v3.5</span>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Gestion de la navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Récupérer tous les liens de navigation et les sections de contenu
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            // Ajouter des écouteurs d'événements pour chaque lien
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Récupérer l'ID de la section à afficher
+                    const sectionId = this.getAttribute('data-section');
+                    
+                    // Supprimer la classe active de tous les liens et sections
+                    navLinks.forEach(navLink => navLink.classList.remove('active'));
+                    contentSections.forEach(section => section.classList.remove('active'));
+                    
+                    // Ajouter la classe active au lien cliqué et à la section correspondante
+                    this.classList.add('active');
+                    document.getElementById(sectionId).classList.add('active');
+                });
+            });
+            
+            // Afficher l'heure actuelle
+            function updateTime() {
+                const now = new Date();
+                
+                // Formater l'heure en format UTC
+                const hours = String(now.getUTCHours()).padStart(2, '0');
+                const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+                const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+                
+                document.getElementById('time-display').textContent = `${hours}:${minutes}:${seconds} UTC`;
+            }
+            
+            // Mettre à jour l'heure toutes les secondes
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Gestion des cases à cocher de la checklist
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const responseElement = this.parentElement.querySelector('.item-response');
+                    if (this.checked) {
+                        responseElement.style.color = '#70c1b3';
+                    } else {
+                        responseElement.style.color = '#aaa';
+                    }
+                });
+            });
+            
+            // Animer l'icône d'avion
+            let position = 70;
+            let direction = -1;
+            
+            function moveAircraft() {
+                position += 0.1 * direction;
+                
+                // Changer de direction quand on atteint les bords
+                if (position <= 10) direction = 1;
+                if (position >= 90) direction = -1;
+                
+                document.querySelector('.aircraft-icon').style.left = position + '%';
+            }
+            
+            // Animer l'avion toutes les 100ms
+            setInterval(moveAircraft, 100);
+        });
+    </script>
+</body>
+</html>
