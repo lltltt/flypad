@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Airline Cockpit Overhead Panel</title>
+    <style>
+        body {
+            background-color: #222;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+        }
+        
+        h1 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .panel-container {
+            background-color: #333;
+            width: 90%;
+            max-width: 1000px;
+            height: 600px;
+            border-radius: 10px;
+            border: 2px solid #555;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .section {
+            background-color: #444;
+            border-radius: 8px;
+            border: 1px solid #666;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+            border-bottom: 1px solid #666;
+            width: 100%;
+            padding-bottom: 5px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+        
+        .switch-container, .button-container, .light-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+        }
+        
+        .switch-label, .button-label, .light-label {
+            font-size: 10px;
+            text-align: center;
+            margin-top: 5px;
+            color: #ccc;
+            width: 70px;
+        }
+        
+        /* Toggle Switch Styles */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #555;
+            transition: .4s;
+            border-radius: 10px;
+            border: 1px solid #777;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+        
+        /* Button Styles */
+        .push-button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #666, #555);
+            border: 1px solid #777;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .push-button:active {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            transform: translateY(1px);
+        }
+        
+        /* Indicator Light Styles */
+        .indicator-light {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #555;
+            border: 1px solid #777;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+            margin: 5px;
+        }
+        
+        .green-light.active {
+            background-color: #4CAF50;
+            box-shadow: 0 0 10px #4CAF50, inset 0 0 5px #4CAF50;
+        }
+        
+        .red-light.active {
+            background-color: #f44336;
+            box-shadow: 0 0 10px #f44336, inset 0 0 5px #f44336;
+        }
+        
+        .amber-light.active {
+            background-color: #FFC107;
+            box-shadow: 0 0 10px #FFC107, inset 0 0 5px #FFC107;
+        }
+        
+        .blue-light.active {
+            background-color: #2196F3;
+            box-shadow: 0 0 10px #2196F3, inset 0 0 5px #2196F3;
+        }
+        
+        /* Throttle Quadrant */
+        .throttle-section {
+            grid-column: span 4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .throttle-container {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .throttle {
+            width: 40px;
+            height: 200px;
+            background-color: #555;
+            border-radius: 10px;
+            border: 1px solid #777;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .throttle-handle {
+            width: 60px;
+            height: 25px;
+            background-color: #888;
+            border-radius: 5px;
+            border: 1px solid #999;
+            position: absolute;
+            left: -10px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            color: #222;
+            user-select: none;
+        }
+        
+        .throttle-markings {
+            position: absolute;
+            left: -30px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            font-size: 10px;
+            color: #ccc;
+        }
+        
+        .throttle-markings div {
+            width: 20px;
+            text-align: right;
+        }
+        
+        /* Display Screens */
+        .display-screen {
+            width: 90%;
+            height: 60px;
+            background-color: #102010;
+            border: 2px solid #555;
+            border-radius: 5px;
+            margin: 10px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', monospace;
+            color: #4CAF50;
+            font-size: 14px;
+            padding: 5px;
+            overflow: hidden;
+        }
+        
+        /* Systems Log */
+        .systems-log {
+            width: 90%;
+            max-width: 1000px;
+            height: 150px;
+            background-color: #000;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            color: #4CAF50;
+            font-size: 14px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        /* Add realistic details */
+        .screw {
+            width: 6px;
+            height: 6px;
+            background-color: #999;
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: inset 1px 1px 1px rgba(0,0,0,0.5);
+        }
+        
+        .panel-container {
+            position: relative;
+        }
+        
+        .panel-container .screw:nth-child(1) {
+            top: 10px;
+            left: 10px;
+        }
+        
+        .panel-container .screw:nth-child(2) {
+            top: 10px;
+            right: 10px;
+        }
+        
+        .panel-container .screw:nth-child(3) {
+            bottom: 10px;
+            left: 10px;
+        }
+        
+        .panel-container .screw:nth-child(4) {
+            bottom: 10px;
+            right: 10px;
+        }
+        
+        /* Three-position switch */
+        .three-pos-switch {
+            width: 30px;
+            height: 50px;
+            background-color: #555;
+            border-radius: 5px;
+            border: 1px solid #777;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .switch-knob {
+            width: 20px;
+            height: 10px;
+            background-color: #ddd;
+            border-radius: 3px;
+            position: absolute;
+            cursor: pointer;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        
+        .switch-knob[data-position="top"] {
+            transform: translateY(-15px);
+        }
+        
+        .switch-knob[data-position="middle"] {
+            transform: translateY(0);
+        }
+        
+        .switch-knob[data-position="bottom"] {
+            transform: translateY(15px);
+        }
+        
+        .pos-indicator {
+            position: absolute;
+            font-size: 8px;
+            color: #ccc;
+        }
+        
+        .pos-top {
+            top: 5px;
+        }
+        
+        .pos-middle {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .pos-bottom {
+            bottom: 5px;
+        }
+        
+        /* Rotary Switch */
+        .rotary-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+        }
+        
+        .rotary-switch {
+            width: 40px;
+            height: 40px;
+            background-color: #555;
+            border-radius: 50%;
+            border: 1px solid #777;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .rotary-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 15px;
+            background-color: white;
+            transform-origin: bottom center;
+            transform: translate(-50%, -100%) rotate(0deg);
+        }
+        
+        .rotary-markings {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .rotary-marking {
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 7px;
+            color: #ccc;
+        }
+        
+        .rotary-label {
+            font-size: 10px;
+            text-align: center;
+            margin-top: 5px;
+            color: #ccc;
+            width: 70px;
+        }
+    </style>
+</head>
+<body>
+    <h1>737 Overhead Panel Simulation</h1>
+    
+    <div class="panel-container">
+        <div class="screw"></div>
+        <div class="screw"></div>
+        <div class="screw"></div>
+        <div class="screw"></div>
+        
+        <!-- Electrical Section -->
+        <div class="section">
+            <div class="section-title">ELECTRICAL</div>
+            <div class="controls">
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="battery">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">BATTERY</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="apu-gen">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">APU GEN</div>
+                </div>
+                
+                <div class="light-container">
+                    <div class="indicator-light amber-light" id="bat-low"></div>
+                    <div class="light-label">BAT LOW</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="gen1">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">GEN 1</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="gen2">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">GEN 2</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hydraulic Section -->
+        <div class="section">
+            <div class="section-title">HYDRAULIC</div>
+            <div class="controls">
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="hyd-pump-1">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">PUMP 1</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="hyd-pump-2">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">PUMP 2</div>
+                </div>
+                
+                <div class="light-container">
+                    <div class="indicator-light amber-light" id="hyd-press"></div>
+                    <div class="light-label">LOW PRESS</div>
+                </div>
+                
+                <div class="rotary-container">
+                    <div class="rotary-switch" id="hyd-select" data-position="0">
+                        <div class="rotary-indicator"></div>
+                        <div class="rotary-markings">
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(0deg) translateY(-2px)">SYS A</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(90deg) translateY(-2px)">SYS B</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(180deg) translateY(-2px)">OFF</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(270deg) translateY(-2px)">STBY</div>
+                        </div>
+                    </div>
+                    <div class="rotary-label">HYD SELECT</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Fuel Section -->
+        <div class="section">
+            <div class="section-title">FUEL</div>
+            <div class="controls">
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="fuel-pump-l">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">L PUMP</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="fuel-pump-r">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">R PUMP</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="fuel-pump-c">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">CTR PUMP</div>
+                </div>
+                
+                <div class="light-container">
+                    <div class="indicator-light amber-light" id="fuel-low"></div>
+                    <div class="light-label">FUEL LOW</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="cross-feed">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">CROSS FEED</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- APU Section -->
+        <div class="section">
+            <div class="section-title">APU</div>
+            <div class="controls">
+                <div class="switch-container three-pos-switch-container">
+                    <div class="three-pos-switch">
+                        <div class="pos-indicator pos-top">START</div>
+                        <div class="pos-indicator pos-middle">ON</div>
+                        <div class="pos-indicator pos-bottom">OFF</div>
+                        <div class="switch-knob" data-position="bottom" id="apu-switch"></div>
+                    </div>
+                    <div class="switch-label">APU</div>
+                </div>
+                
+                <div class="light-container">
+                    <div class="indicator-light green-light" id="apu-running"></div>
+                    <div class="light-label">AVAILABLE</div>
+                </div>
+                
+                <div class="light-container">
+                    <div class="indicator-light amber-light" id="apu-fault"></div>
+                    <div class="light-label">FAULT</div>
+                </div>
+                
+                <div class="display-screen" id="apu-display">APU N1: 0%</div>
+            </div>
+        </div>
+        
+        <!-- Anti-Ice Section -->
+        <div class="section">
+            <div class="section-title">ANTI-ICE</div>
+            <div class="controls">
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="wing-heat">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">WING</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="eng1-heat">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">ENG 1</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="eng2-heat">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">ENG 2</div>
+                </div>
+                
+                <div class="light-container">
+                    <div class="indicator-light amber-light" id="ice-detected"></div>
+                    <div class="light-label">ICE DETECTED</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Air Conditioning Section -->
+        <div class="section">
+            <div class="section-title">AIR COND</div>
+            <div class="controls">
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="pack-1">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">PACK 1</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="pack-2">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">PACK 2</div>
+                </div>
+                
+                <div class="rotary-container">
+                    <div class="rotary-switch" id="temp-control" data-position="3">
+                        <div class="rotary-indicator"></div>
+                        <div class="rotary-markings">
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(0deg) translateY(-2px)">C</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(45deg) translateY(-2px)">1</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(90deg) translateY(-2px)">2</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(135deg) translateY(-2px)">3</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(180deg) translateY(-2px)">4</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(225deg) translateY(-2px)">5</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(270deg) translateY(-2px)">6</div>
+                            <div class="rotary-marking" style="transform: translateX(-50%) rotate(315deg) translateY(-2px)">H</div>
+                        </div>
+                    </div>
+                    <div class="rotary-label">TEMP</div>
+                </div>
+                
+                <div class="button-container">
+                    <button class="push-button" id="reset-trip"></button>
+                    <div class="button-label">RESET TRIP</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pressurization Section -->
+        <div class="section">
+            <div class="section-title">PRESSURIZATION</div>
+            <div class="controls">
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="press-auto">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">AUTO</div>
+                </div>
+                
+                <div class="switch-container">
+                    <label class="switch">
+                        <input type="checkbox" class="toggleSwitch" data-system="outflow-valve">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="switch-label">OUTFLOW</div>
+                </div>
+                
+                <div class="light-container">
+                    <div class="indicator-light amber-light" id="press-warning"></div>
+                    <div class="light-label">ALT WARNING</div>
+                </div>
+                
+                <div class="display-screen" id="press-display">CAB ALT: 0 FT</div>
+            </div>
+        </div>
+        
+        <!-- Emergency Section -->
+        <div class="section">
+            <div class="section-title">EMERGENCY</div>
+            <div class="controls">
+                <div class="switch-container">
+                    <div class="three-pos-switch">
+                        <div class="pos-indicator pos-top">DPLY</div>
+                        <div class="pos-indicator pos-middle">ARM</div>
+                        <div class="pos-indicator pos-bottom">OFF</div>
+                        <div class="switch-knob" data-position="bottom" id="emer-exit"></div>
+                    </div>
+                    <div class="switch-label">EMER EXIT</div>
+                </div>
+                
+                <div class="button-container">
+                    <button class="push-button" id="fire-test" style="background-color: #d32f2f;"></button>
+                    <div class="button-label">FIRE TEST</div>
+                </div>
+                
+                <div class="button-container">
+                    <button class="push-button" id="oxy-mask" style="background-color: #f57c00;"></button>
+                    <div class="button-label">OXY MASK</div>
+                </div>
+                
+                <div class="light-container">
+                    <div class="indicator-light red-light" id="master-warn"></div>
+                    <div class="light-label">MASTER WARN</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="systems-log" id="systems-log">
+        <div>> Systems initializing...</div>
+        <div>> Cold and dark state. Ready for startup sequence.</div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize systems state
+            const systemsState = {
+                battery: false,
+                apuGen: false,
+                gen1: false,
+                gen2: false,
+                hydPump1: false,
+                hydPump2: false,
+                fuelPumpL: false,
+                fuelPumpR: false,
+                fuelPumpC: false,
+                crossFeed: false,
+                wingHeat: false,
+                eng1Heat: false,
+                eng2Heat: false,
+                pack1: false,
+                pack2: false,
+                pressAuto: false,
+                outflowValve: false,
+                apuState: 'OFF',
+                apuN1: 0,
+                cabinAltitude: 0,
+                warnings: {
+                    batLow: false,
+                    hydPress: false,
+                    fuelLow: false,
+                    apuFault: false,
+                    iceDetected: false,
+                    pressWarning: false,
+                    masterWarn: false
+                }
+            };
+
+            // Get DOM elements
+            const systemsLog = document.getElementById('systems-log');
+            const apuDisplay = document.getElementById('apu-display');
+            const pressDisplay = document.getElementById('press-display');
+            const apuSwitch = document.getElementById('apu-switch');
+            const fireTestBtn = document.getElementById('fire-test');
+            const oxyMaskBtn = document.getElementById('oxy-mask');
+            const resetTripBtn = document.getElementById('reset-trip');
+            const emerExitSwitch = document.getElementById('emer-exit');
+            const hydSelect = document.getElementById('hyd-select');
+            const tempControl = document.getElementById('temp-control');
+
+            // Add log entry
+            function addLog(message) {
+                const logEntry = document.createElement('div');
+                logEntry.textContent = '> ' + message;
+                systemsLog.appendChild(logEntry);
+                systemsLog.scrollTop = systemsLog.scrollHeight;
+            }
+
+            // Toggle switches event handler
+            const toggleSwitches = document.querySelectorAll('.toggleSwitch');
+            toggleSwitches.forEach(function(switchEl) {
+                switchEl.addEventListener('change', function() {
+                    const system = this.getAttribute('data-system');
+                    const isOn = this.checked;
+                    
+                    // Update system state based on switch
+                    switch(system) {
+                        case 'battery':
+                            systemsState.battery = isOn;
+                            if (isOn) {
+                                addLog('Battery power ON');
+                                if (Math.random() < 0.3) {
+                                    // Random chance of low battery warning
+                                    systemsState.warnings.batLow = true;
+                                    document.getElementById('bat-low').classList.add('active');
+                                    addLog('WARNING: Battery voltage low');
+                                }
+                            } else {
+                                addLog('Battery power OFF');
+                                // Turn off all electrical systems if no power source
+                                if (!systemsState.apuGen && !systemsState.gen1 && !systemsState.gen2) {
+                                    toggleSwitches.forEach(s => {
+                                        if (s.getAttribute('data-system') !== 'battery') {
+                                            s.checked = false;
+                                        }
+                                    });
+                                    systemsState.apuN1 = 0;
+                                    updateDisplays();
+                                    addLog('All electrical systems powered down');
+                                }
+                                systemsState.warnings.batLow = false;
+                                document.getElementById('bat-low').classList.remove('active');
+                            }
+                            break;
+                        case 'apu-gen':
+                            systemsState.apuGen = isOn;
+                            if (isOn) {
+                                if (systemsState.apuState !== 'RUNNING') {
+                                    addLog('WARNING: APU GEN switch ON but APU not running');
+                                    this.checked = false;
+                                    systemsState.apuGen = false;
+                                } else {
+                                    addLog('APU generator online');
+                                }
+                            } else {
+                                addLog('APU generator offline');
+                            }
+                            break;
+                        case 'gen1':
+                            systemsState.gen1 = isOn;
+                            addLog(isOn ? 'Generator 1 online' : 'Generator 1 offline');
+                            break;
+                        case 'gen2':
+                            systemsState.gen2 = isOn;
+                            addLog(isOn ? 'Generator 2 online' : 'Generator 2 offline');
+                            break;
+                        case 'hyd-pump-1':
+                            systemsState.hydPump1 = isOn;
+                            addLog(isOn ? 'Hydraulic pump 1 activated' : 'Hydraulic pump 1 deactivated');
+                            if (!isOn && !systemsState.hydPump2) {
+                                systemsState.
