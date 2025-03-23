@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS Message Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f2f2f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .phone {
+            width: 360px;
+            height: 640px;
+            background-color: white;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-bar {
+            height: 36px;
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 14px;
+        }
+        
+        .signal {
+            display: flex;
+        }
+        
+        .dot {
+            width: 6px;
+            height: 6px;
+            background-color: black;
+            border-radius: 50%;
+            margin-right: 2px;
+        }
+        
+        .dot.empty {
+            background-color: #d1d1d6;
+        }
+        
+        .status-bar .time {
+            font-weight: 500;
+        }
+        
+        .status-bar .battery {
+            display: flex;
+            align-items: center;
+        }
+        
+        .battery-icon {
+            width: 24px;
+            height: 12px;
+            border: 1px solid black;
+            border-radius: 3px;
+            margin-left: 5px;
+            position: relative;
+            padding: 1px;
+        }
+        
+        .battery-icon:after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 3px;
+            height: 4px;
+            width: 3px;
+            background-color: black;
+            border-radius: 0 2px 2px 0;
+        }
+        
+        .battery-level {
+            background-color: black;
+            height: 100%;
+            width: 75%;
+            border-radius: 1px;
+        }
+        
+        .nav-bar {
+            height: 50px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+        }
+        
+        .back-button {
+            color: #007aff;
+            font-size: 17px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .back-arrow {
+            font-size: 22px;
+            margin-right: 5px;
+        }
+        
+        .title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+        
+        .details {
+            color: #007aff;
+            font-size: 17px;
+        }
+        
+        .messages {
+            height: calc(100% - 136px);
+            background-color: white;
+            padding: 10px 15px;
+            overflow-y: auto;
+        }
+        
+        .message {
+            max-width: 70%;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+        
+        .sender {
+            background-color: #e5e5ea;
+            align-self: flex-start;
+            border-radius: 20px;
+            float: left;
+            clear: both;
+        }
+        
+        .receiver {
+            background-color: #00e15f;
+            color: white;
+            align-self: flex-end;
+            border-radius: 20px;
+            float: right;
+            clear: both;
+        }
+        
+        .input-bar {
+            height: 50px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            max-width: 360px;
+        }
+        
+        .camera-button {
+            width: 24px;
+            height: 24px;
+            background-color: transparent;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 5px;
+        }
+        
+        .input-field {
+            flex-grow: 1;
+            height: 30px;
+            border-radius: 15px;
+            border: 1px solid #e0e0e0;
+            background-color: white;
+            padding: 0 10px;
+            font-size: 14px;
+            outline: none;
+            margin: 0 5px;
+        }
+        
+        .mic-button {
+            width: 24px;
+            height: 24px;
+            background-color: transparent;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="status-bar">
+            <div class="left">
+                <span class="signal">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot empty"></span>
+                    <span class="dot empty"></span>
+                </span>
+                <span style="margin-left: 5px;">Sprint LTE</span>
+            </div>
+            <div class="time">4:08 PM</div>
+            <div class="battery">
+                <span>75%</span>
+                <div class="battery-icon">
+                    <div class="battery-level"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nav-bar">
+            <div class="back-button">
+                <span class="back-arrow">&#8592;</span>
+                <span>Messages</span>
+            </div>
+            <div class="title">Name</div>
+            <div class="details">Details</div>
+        </div>
+        
+        <div class="messages">
+            <div class="message sender">Hi there</div>
+            <div class="message receiver">How are you? You were not there at the party!</div>
+            <div class="message sender">Ouch ...sorry</div>
+        </div>
+        
+        <div class="input-bar">
+            <div class="camera-button">📷</div>
+            <input type="text" class="input-field" placeholder="iMessage" disabled>
+            <div class="mic-button">🎤</div>
+        </div>
+    </div>
+</body>
+</html>
